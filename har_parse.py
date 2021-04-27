@@ -70,9 +70,9 @@ def main():
                 format_to_python(chosen_har.get('name').response.cookies, pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'text':
                 if pprint_choice.get('pretty'):
-                    pprint(chosen_har.get('name').response.text)
+                    pprint(chosen_har.get('name').response.get('text'))
                 else:
-                    print(chosen_har.get('name').response.text)
+                    print(chosen_har.get('name').response.get('text'))
     except FileNotFoundError:
         raise Exception("File does not exist")
 
