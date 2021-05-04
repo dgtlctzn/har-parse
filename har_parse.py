@@ -71,7 +71,7 @@ def main():
                 if pprint_choice.get('pretty'):
                     pprint(chosen_har.get('response').get('content').get('text'))
                 else:
-                    print(chosen_har.get('name').response.text)
+                    print(chosen_har.get('response').get('content').get('text'))
     except FileNotFoundError:
         raise Exception("File does not exist")
 
