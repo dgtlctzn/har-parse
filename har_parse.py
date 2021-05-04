@@ -1,18 +1,17 @@
 import json
 from pprint import pprint
-from typing import List
+from typing import Dict, List
 
-from haralyzer import HarParser
 from PyInquirer import prompt
 
 
-def to_har(har_file: str) -> HarParser.pages:
+def to_har(har_file: str) -> List[Dict]:
     with open(har_file, 'rt') as f:
-        har_parser = HarParser(json.loads(f.read()))
-    return har_parser.pages
+        har_list = json.load(f)
+    return har_list.get('log').get('entries')
 
 
-def format_question(_type: str, message: str, name: str, choices=None) -> List[dict]:
+def format_question(_type: str, message: str, name: str, choices=None) -> List[Dict]:
     question = [
         {
             'type': _type,
@@ -40,10 +39,10 @@ def main():
         har_file = prompt(format_question('input', 'What the is har file extension?', 'har_file'))
         if '.har' not in har_file.get('har_file'):
             raise ValueError('File must be a .har file')
-        hars = [{'name': val} for val in to_har(har_file.get('har_file'))[0].entries]
-        har_choices = [{'name': str(val)} for val in to_har(har_file.get('har_file'))[0].entries]
+        hars = [har for har in to_har(har_file.get('har_file'))]
+        har_choices = [har.get('request').get('url') for har in to_har(har_file.get('har_file'))]
         ans = prompt(format_question('list', 'Which request?', 'har', choices=har_choices))
-        chosen_har = hars[har_choices.index({'name': ans.get('har')})]
+        chosen_har = hars[har_choices.index(ans.get('har'))]
         res_or_req = prompt(
             format_question(
                 'list',
@@ -60,17 +59,17 @@ def main():
 
         if res_or_req.get('res_or_req') == 'request':
             if info_choice.get('type') == 'headers':
-                format_to_python(chosen_har.get('name').request.headers, pprint_choice.get('pretty'))
+                format_to_python(chosen_har.get('request').get('headers'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'cookies':
-                format_to_python(chosen_har.get('name').request.cookies, pprint_choice.get('pretty'))
+                format_to_python(chosen_har.get('request').get('cookies'), pprint_choice.get('pretty'))
         else:
             if info_choice.get('type') == 'headers':
-                format_to_python(chosen_har.get('name').response.headers, pprint_choice.get('pretty'))
+                format_to_python(chosen_har.get('response').get('headers'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'cookies':
-                format_to_python(chosen_har.get('name').response.cookies, pprint_choice.get('pretty'))
+                format_to_python(chosen_har.get('response').get('cookies'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'text':
                 if pprint_choice.get('pretty'):
-                    pprint(chosen_har.get('name').response.text)
+                    pprint(chosen_har.get('response').get('content').get('text'))
                 else:
                     print(chosen_har.get('name').response.text)
     except FileNotFoundError:
