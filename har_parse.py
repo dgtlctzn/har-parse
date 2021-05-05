@@ -11,6 +11,16 @@ def to_har(har_file: str) -> List[Dict]:
     return har_list.get('log').get('entries')
 
 
+def har_str(har: Dict) -> str:
+    req = har.get('request')
+    res = har.get('response')
+
+    url = req.get('url')
+    method = req.get('method')
+    mime = res.get('content').get('mimeType')
+    return f'{method} - {mime}: {url}'
+
+
 def format_question(_type: str, message: str, name: str, choices=None) -> List[Dict]:
     question = [
         {
@@ -39,8 +49,9 @@ def main():
         har_file = prompt(format_question('input', 'What the is har file extension?', 'har_file'))
         if '.har' not in har_file.get('har_file'):
             raise ValueError('File must be a .har file')
-        hars = [har for har in to_har(har_file.get('har_file'))]
-        har_choices = [har.get('request').get('url') for har in to_har(har_file.get('har_file'))]
+        har_entries = to_har(har_file.get('har_file'))
+        hars = [har for har in har_entries]
+        har_choices = [har_str(har) for har in har_entries]
         ans = prompt(format_question('list', 'Which request?', 'har', choices=har_choices))
         chosen_har = hars[har_choices.index(ans.get('har'))]
         res_or_req = prompt(
