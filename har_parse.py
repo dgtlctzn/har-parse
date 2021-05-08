@@ -34,10 +34,13 @@ def format_question(_type: str, message: str, name: str, choices=None) -> List[D
     return question
 
 
-def format_to_python(raw: list, pretty=True) -> None:
+def format_to_python(raw: list, pretty=True, no_cookies=False) -> None:
     py_format = {}
     for entry in raw:
         py_format[entry['name']] = entry['value']
+    if no_cookies:
+        py_format.pop('Cookie', None)
+        py_format.pop('cookie', None)
     if pretty:
         pprint(py_format)
     else:
@@ -72,7 +75,13 @@ def main():
 
         if res_or_req.get('res_or_req') == 'request':
             if info_choice.get('type') == 'headers':
-                format_to_python(chosen_har.get('request').get('headers'), pprint_choice.get('pretty'))
+                exclude_cookies = prompt(format_question('confirm', 'Exclude Cookies?', 'exclude'))
+                print(exclude_cookies.get('exclude'))
+                format_to_python(
+                    chosen_har.get('request').get('headers'), 
+                    pprint_choice.get('pretty'), 
+                    no_cookies=exclude_cookies.get('exclude')
+                )
             elif info_choice.get('type') == 'cookies':
                 format_to_python(chosen_har.get('request').get('cookies'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'query params':
