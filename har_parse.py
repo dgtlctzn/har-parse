@@ -41,6 +41,7 @@ def format_to_python(raw: list, pretty=True, no_cookies=False) -> None:
     if no_cookies:
         py_format.pop('Cookie', None)
         py_format.pop('cookie', None)
+        py_format.pop('Set-Cookie', None)
     if pretty:
         pprint(py_format)
     else:
@@ -55,7 +56,7 @@ def main():
         har_entries = to_har(har_file.get('har_file'))
         hars = [har for har in har_entries]
         har_choices = [har_str(har) for har in har_entries]
-        ans = prompt(format_question('list', 'Which request?', 'har', choices=har_choices))
+        ans = prompt(format_question('list', 'Which page?', 'har', choices=har_choices))
         chosen_har = hars[har_choices.index(ans.get('har'))]
         res_or_req = prompt(
             format_question(
@@ -76,7 +77,6 @@ def main():
         if res_or_req.get('res_or_req') == 'request':
             if info_choice.get('type') == 'headers':
                 exclude_cookies = prompt(format_question('confirm', 'Exclude Cookies?', 'exclude'))
-                print(exclude_cookies.get('exclude'))
                 format_to_python(
                     chosen_har.get('request').get('headers'), 
                     pprint_choice.get('pretty'), 
@@ -88,7 +88,12 @@ def main():
                 format_to_python(chosen_har.get('request').get('queryString'), pprint_choice.get('pretty'))
         else:
             if info_choice.get('type') == 'headers':
-                format_to_python(chosen_har.get('response').get('headers'), pprint_choice.get('pretty'))
+                exclude_cookies = prompt(format_question('confirm', 'Exclude Cookies?', 'exclude'))
+                format_to_python(
+                    chosen_har.get('response').get('headers'), 
+                    pprint_choice.get('pretty'), 
+                    no_cookies=exclude_cookies.get('exclude')
+                )
             elif info_choice.get('type') == 'cookies':
                 format_to_python(chosen_har.get('response').get('cookies'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'text':
