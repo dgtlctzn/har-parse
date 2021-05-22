@@ -1,4 +1,4 @@
-#! .venv/bin/activate
+#! .venv/bin/python3
 
 import json
 from pprint import pprint
