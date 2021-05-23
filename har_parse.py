@@ -105,6 +105,8 @@ def main():
                     print(chosen_har.get('response').get('content').get('text'))
     except FileNotFoundError:
         raise Exception("File does not exist")
+    except EOFError:
+        print("Done")
 
 
 if __name__ == '__main__':
