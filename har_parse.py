@@ -72,9 +72,10 @@ def main():
         if res_or_req.get('res_or_req') == 'response':
             info_choices.append({'name': 'text'})
         else:
-            info_choices.append({'name': 'query params'})
+            info_choices.extend([{'name': 'query params'}, {'name': 'post data'}])
         info_choice = prompt(format_question('list', 'What do you want to get?', 'type', choices=info_choices))
         pprint_choice = prompt(format_question('confirm', 'Pretty print?', 'pretty'))
+
 
         if res_or_req.get('res_or_req') == 'request':
             if info_choice.get('type') == 'headers':
@@ -88,6 +89,8 @@ def main():
                 format_to_python(chosen_har.get('request').get('cookies'), pprint_choice.get('pretty'))
             elif info_choice.get('type') == 'query params':
                 format_to_python(chosen_har.get('request').get('queryString'), pprint_choice.get('pretty'))
+            elif info_choice.get('type') == 'post data':
+                format_to_python(chosen_har.get('request').get('postData').get('params'), pprint_choice.get('pretty'))
         else:
             if info_choice.get('type') == 'headers':
                 exclude_cookies = prompt(format_question('confirm', 'Exclude Cookies?', 'exclude'))
