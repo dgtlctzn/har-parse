@@ -6,13 +6,14 @@ pretty printed or raw.
 
 ## Installation
 
-```
+```bash
+$ source .venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
 ## Usage
 
-`$ ./har_parse.py`
+`$ python har_parse.py`
 
 ## Test 
 
